@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="shineGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+      <stop offset="60%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+    <filter id="outerGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Outer glow ring -->
+  <path d="M60 6 L108 26 L108 65 Q108 98 60 114 Q12 98 12 65 L12 26 Z"
+        fill="none" stroke="url(#shieldGrad)" stroke-width="1.5" opacity="0.35"/>
+  <!-- Main shield -->
+  <path d="M60 14 L100 32 L100 64 Q100 93 60 108 Q20 93 20 64 L20 32 Z"
+        fill="url(#shieldGrad)" filter="url(#outerGlow)"/>
+  <!-- Shine overlay -->
+  <path d="M60 14 L100 32 L100 64 Q100 93 60 108 Q20 93 20 64 L20 32 Z"
+        fill="url(#shineGrad)"/>
+  <!-- Lightning bolt -->
+  <path d="M68 36 L50 62 L62 62 L52 86 L74 56 L62 56 Z" fill="white" opacity="0.95"/>
+</svg>
