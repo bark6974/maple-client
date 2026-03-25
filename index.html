@@ -1,19 +1,939 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BUZI SELF BOT — 한국 NO.1 디스코드 셀프봇</title>
-    <meta name="description" content="자동 스팸, 레이드, DM 폭탄 등 강력한 디스코드 셀프봇. 탐지 우회 알고리즘 내장." />
-    <meta property="og:title" content="BUZI SELF BOT" />
-    <meta property="og:description" content="한국 NO.1 디스코드 셀프봇 — 탐지 우회 최강" />
-    <meta property="og:image" content="https://mapleclient.xyz/logo.svg" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:image" content="https://mapleclient.xyz/logo.svg" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Maple Client | Best Minecraft Client</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --red:        #D2042D;
+      --red-dark:   #8b001a;
+      --red-light:  #ff3355;
+      --red-glow:   #D2042D;
+      --bg:         #080008;
+      --bg2:        #100010;
+      --text:       #fff;
+      --muted:      #ffaabb;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── PARTICLES BACKGROUND ─── */
+    #particles {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: var(--red-glow);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--red-glow);
+      animation: drift linear infinite;
+    }
+    @keyframes drift {
+      0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(-10vh) translateX(40px); opacity: 0; }
+    }
+
+    /* ─── MAPLE LEAVES ─── */
+    #leaves {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .maple-leaf {
+      position: absolute;
+      top: -60px;
+      user-select: none;
+      pointer-events: none;
+      animation: leaffall linear infinite;
+      will-change: transform;
+      filter: drop-shadow(0 0 4px rgba(210,4,45,0.5));
+    }
+    @keyframes leaffall {
+      0%   { transform: translateY(-60px) rotate(0deg) translateX(0px);   opacity: 0; }
+      8%   { opacity: 1; }
+      25%  { transform: translateY(25vh)  rotate(90deg)  translateX(38px); }
+      50%  { transform: translateY(52vh)  rotate(215deg) translateX(-22px); }
+      75%  { transform: translateY(76vh)  rotate(370deg) translateX(48px); }
+      92%  { opacity: 1; }
+      100% { transform: translateY(112vh) rotate(540deg) translateX(-12px); opacity: 0; }
+    }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 18px 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(10,0,0,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(230,0,0,0.3);
+    }
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.6rem; font-weight: 900;
+      color: var(--red-light);
+      text-shadow: 0 0 20px var(--red-glow), 0 0 40px var(--red-glow);
+      letter-spacing: 3px;
+    }
+    .logo span { color: #fff; }
+    nav ul { list-style: none; display: flex; gap: 32px; }
+    nav ul a {
+      text-decoration: none; color: var(--muted);
+      font-size: 1rem; font-weight: 600; letter-spacing: 1px;
+      transition: color .25s, text-shadow .25s;
+      text-transform: uppercase;
+    }
+    nav ul a:hover {
+      color: #fff;
+      text-shadow: 0 0 10px var(--red-glow);
+    }
+    .nav-discord {
+      background: linear-gradient(135deg, #5865F2, #4752c4);
+      color: #fff !important;
+      padding: 8px 20px; border-radius: 6px;
+      transition: box-shadow .25s, transform .2s !important;
+    }
+    .nav-discord:hover {
+      box-shadow: 0 0 18px #5865F2;
+      transform: translateY(-2px);
+    }
+
+    /* ─── HERO ─── */
+    #hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 20px 80px;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(180,0,0,0.18) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 6px 20px;
+      border: 1px solid var(--red);
+      border-radius: 50px;
+      font-size: .85rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--red-light);
+      margin-bottom: 28px;
+      animation: pulse-border 2s infinite;
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 0px var(--red); }
+      50%       { box-shadow: 0 0 14px var(--red); }
+    }
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(3.2rem, 9vw, 7rem);
+      font-weight: 900;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+    }
+    .hero-title .maple { 
+      color: var(--red-light);
+      text-shadow: 0 0 30px var(--red-glow), 0 0 60px rgba(255,0,0,0.5);
+    }
+    .hero-title .client { 
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+    .hero-sub {
+      margin-top: 24px;
+      font-size: 1.25rem; color: var(--muted);
+      max-width: 600px; line-height: 1.6;
+    }
+    .hero-buttons {
+      margin-top: 48px;
+      display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+    }
+    .btn {
+      padding: 16px 40px;
+      font-family: 'Orbitron', monospace;
+      font-size: .9rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      border: none; cursor: pointer;
+      border-radius: 6px;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
+      transition: transform .2s, box-shadow .3s;
+    }
+    .btn-buy {
+      background: linear-gradient(135deg, var(--red), #ff2222);
+      color: #fff;
+      box-shadow: 0 4px 30px rgba(230,0,0,0.5);
+    }
+    .btn-buy:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 8px 50px rgba(255,0,0,0.7);
+    }
+    .btn-discord {
+      background: linear-gradient(135deg, #5865F2, #4752c4);
+      color: #fff;
+      box-shadow: 0 4px 30px rgba(88,101,242,0.4);
+    }
+    .btn-discord:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 8px 50px rgba(88,101,242,0.7);
+    }
+    .hero-scroll {
+      position: absolute; bottom: 36px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--muted); font-size: .8rem; letter-spacing: 2px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(8px); }
+    }
+    .hero-scroll svg { width: 24px; height: 24px; fill: none; stroke: var(--red-light); stroke-width: 2; }
+
+    /* ─── SECTION SHARED ─── */
+    section { position: relative; z-index: 1; }
+    .section-label {
+      text-align: center;
+      font-size: .8rem; letter-spacing: 5px;
+      text-transform: uppercase; color: var(--red);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      text-align: center;
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 60px;
+    }
+    .section-title span { color: var(--red-light); }
+
+    /* ─── STATS BAR ─── */
+    #stats {
+      padding: 40px 60px;
+      background: linear-gradient(135deg, rgba(139,0,0,0.4), rgba(100,0,0,0.2));
+      border-top: 1px solid rgba(230,0,0,0.3);
+      border-bottom: 1px solid rgba(230,0,0,0.3);
+      display: flex; justify-content: center; gap: 80px; flex-wrap: wrap;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.4rem; font-weight: 900;
+      color: var(--red-light);
+      text-shadow: 0 0 20px var(--red-glow);
+    }
+    .stat-label {
+      font-size: .95rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ─── FEATURES ─── */
+    #features { padding: 100px 60px; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .feature-card {
+      background: rgba(8,0,4,0.82);
+      border: 1px solid rgba(210,4,45,0.12);
+      border-left: 3px solid var(--red);
+      border-radius: 0 14px 14px 0;
+      padding: 30px 28px;
+      transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+    }
+    .feature-card:hover {
+      background: rgba(20,0,8,0.9);
+      border-color: var(--red);
+      border-left-color: var(--red-light);
+      box-shadow: 0 6px 36px rgba(210,4,45,0.18), inset 0 0 24px rgba(210,4,45,0.04);
+      transform: translateY(-6px) translateX(3px);
+    }
+    .feature-icon {
+      font-size: 2.2rem; margin-bottom: 16px;
+      filter: drop-shadow(0 0 8px var(--red));
+      color: var(--red-light);
+    }
+    .feature-icon i {
+      font-size: 2rem;
+      color: var(--red-light);
+      text-shadow: 0 0 12px var(--red-glow);
+    }
+    .feature-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem; font-weight: 700;
+      color: var(--red-light); margin-bottom: 10px; letter-spacing: 1px;
+    }
+    .feature-desc { font-size: .95rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── PRICING ─── */
+    #pricing {
+      padding: 100px 60px;
+      background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(120,0,0,0.12) 0%, transparent 70%);
+    }
+    .pricing-grid {
+      display: flex; gap: 28px; justify-content: center; flex-wrap: wrap;
+      max-width: 1140px; margin: 0 auto;
+    }
+    .pricing-card {
+      background: rgba(15,0,0,0.85);
+      border: 1px solid rgba(230,0,0,0.25);
+      border-radius: 16px;
+      padding: 44px 36px 40px;
+      width: 320px;
+      position: relative;
+      transition: transform .3s, box-shadow .3s, border-color .3s;
+      text-align: center;
+    }
+    .pricing-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 60px rgba(200,0,0,0.25);
+      border-color: var(--red);
+    }
+    .pricing-card.featured {
+      border-color: var(--red);
+      box-shadow: 0 0 40px rgba(230,0,0,0.25);
+    }
+    .badge-popular {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--red), #ff2222);
+      padding: 5px 22px; border-radius: 50px;
+      font-size: .75rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: #fff;
+      box-shadow: 0 4px 20px rgba(255,0,0,0.5);
+    }
+    .plan-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .plan-price {
+      font-family: 'Orbitron', monospace;
+      font-size: 3.4rem; font-weight: 900;
+      color: #fff; line-height: 1;
+    }
+    .plan-price sup { font-size: 1.4rem; vertical-align: super; color: var(--red-light); }
+    .plan-price span { font-size: 1rem; color: var(--muted); font-family: 'Rajdhani', sans-serif; }
+    .plan-period { font-size: .9rem; color: var(--muted); margin-top: 6px; margin-bottom: 30px; }
+    .plan-divider {
+      height: 1px; background: rgba(230,0,0,0.2); margin: 24px 0;
+    }
+    .plan-features { list-style: none; text-align: left; margin-bottom: 36px; }
+    .plan-features li {
+      padding: 8px 0;
+      font-size: .97rem; color: #eee;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .plan-features li::before {
+      content: '✦';
+      color: var(--red-light);
+      font-size: .8rem;
+      flex-shrink: 0;
+    }
+    .btn-plan {
+      display: block; width: 100%;
+      padding: 15px;
+      font-family: 'Orbitron', monospace;
+      font-size: .85rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; text-decoration: none;
+      border: none; cursor: pointer;
+      border-radius: 8px; transition: all .3s;
+    }
+    @keyframes plan-glow {
+      0%,100% { box-shadow: 0 4px 30px rgba(210,4,45,0.45); }
+      50%      { box-shadow: 0 6px 55px rgba(210,4,45,0.9), 0 0 20px rgba(210,4,45,0.3); }
+    }
+    .btn-plan-outline {
+      background: transparent;
+      border: 2px solid var(--red);
+      color: var(--red-light);
+      transition: all .3s cubic-bezier(.25,.8,.25,1);
+    }
+    .btn-plan-outline:hover {
+      background: var(--red);
+      color: #fff;
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 0 45px rgba(210,4,45,0.7);
+      letter-spacing: 3px;
+    }
+    .btn-plan-solid {
+      background: linear-gradient(135deg, var(--red), #ff1a3a);
+      color: #fff;
+      box-shadow: 0 4px 30px rgba(210,4,45,0.45);
+      transition: all .3s cubic-bezier(.25,.8,.25,1);
+    }
+    .btn-plan-solid:hover {
+      animation: plan-glow 1.4s infinite;
+      transform: translateY(-4px) scale(1.05);
+      letter-spacing: 3px;
+    }
+
+    /* ─── DISCORD CTA ─── */
+    #cta {
+      padding: 100px 60px;
+      text-align: center;
+    }
+    .cta-box {
+      max-width: 700px; margin: 0 auto;
+      background: rgba(15,0,0,0.7);
+      border: 1px solid rgba(230,0,0,0.3);
+      border-radius: 20px;
+      padding: 60px 40px;
+      box-shadow: 0 0 60px rgba(180,0,0,0.1);
+    }
+    .cta-box h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      margin-bottom: 16px;
+    }
+    .cta-box p { color: var(--muted); font-size: 1.05rem; margin-bottom: 36px; line-height: 1.6; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      position: relative; z-index: 1;
+      padding: 32px 60px;
+      border-top: 1px solid rgba(230,0,0,0.2);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: gap;
+      background: rgba(10,0,0,0.9);
+    }
+    footer .logo { font-size: 1.1rem; }
+    footer p { color: var(--muted); font-size: .85rem; }
+
+    /* ─── GLITCH EFFECT ─── */
+    .glitch {
+      position: relative; display: inline-block;
+    }
+    .glitch::before, .glitch::after {
+      content: attr(data-text);
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      font-family: inherit; font-size: inherit; font-weight: inherit; letter-spacing: inherit;
+    }
+    .glitch::before {
+      color: #ff0080;
+      clip: rect(0, 900px, 0, 0);
+      animation: glitch1 4s infinite;
+    }
+    .glitch::after {
+      color: #00cfff;
+      clip: rect(0, 900px, 0, 0);
+      animation: glitch2 4s infinite;
+    }
+    @keyframes glitch1 {
+      0%, 95%, 100% { clip: rect(0,900px,0,0); transform: none; }
+      96%  { clip: rect(10px,900px,35px,0); transform: skew(-3deg); }
+      97%  { clip: rect(60px,900px,80px,0); transform: skew(2deg); }
+      98%  { clip: rect(5px,900px,20px,0); transform: skew(-1deg); }
+      99%  { clip: rect(40px,900px,55px,0); transform: skew(3deg); }
+    }
+    @keyframes glitch2 {
+      0%, 93%, 100% { clip: rect(0,900px,0,0); transform: none; }
+      94%  { clip: rect(70px,900px,90px,0); transform: skew(3deg) translateX(-4px); }
+      95%  { clip: rect(20px,900px,40px,0); transform: skew(-2deg) translateX(2px); }
+      96%  { clip: rect(55px,900px,75px,0); transform: skew(1deg); }
+      97%  { clip: rect(0px,900px,15px,0); transform: skew(-3deg) translateX(-2px); }
+    }
+
+    /* ─── HERO LOGO ─── */
+    .hero-logo-img {
+      width: 145px; height: 145px;
+      margin-bottom: 18px;
+      animation: logo-float 3.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 28px rgba(210,4,45,0.6));
+    }
+    @keyframes logo-float {
+      0%,100% { transform: translateY(0px) rotate(-1deg); }
+      50%      { transform: translateY(-13px) rotate(1deg); }
+    }
+    .nav-logo-img {
+      height: 30px; vertical-align: middle; margin-right: 8px;
+      filter: drop-shadow(0 0 6px rgba(210,4,45,0.7));
+    }
+
+    /* ─── BYPASS SECTION ─── */
+    #bypass {
+      padding: 80px 60px;
+      background: linear-gradient(160deg, rgba(18,0,8,0.75) 0%, rgba(6,0,3,0.5) 100%);
+      border-top: 1px solid rgba(210,4,45,0.25);
+      border-bottom: 1px solid rgba(210,4,45,0.25);
+      position: relative; z-index: 1;
+    }
+    .bypass-wrap {
+      max-width: 1000px; margin: 0 auto;
+      display: flex; gap: 70px; align-items: center; flex-wrap: wrap;
+    }
+    .bypass-left { flex: 0 0 300px; }
+    .bypass-left .section-title { text-align: left; margin-bottom: 10px; font-size: clamp(1.5rem,3vw,2.2rem); }
+    .bypass-left .section-label { text-align: left; }
+    .bypass-desc { font-size: 1rem; color: var(--muted); line-height: 1.75; margin-bottom: 22px; }
+    .bypass-tag {
+      display: inline-block; padding: 6px 18px;
+      background: rgba(210,4,45,0.12);
+      border: 1px solid rgba(210,4,45,0.45);
+      border-radius: 50px;
+      font-size: .78rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--red-light);
+      box-shadow: 0 0 14px rgba(210,4,45,0.15);
+    }
+    .bypass-right { flex: 1; min-width: 260px; }
+    .bypass-row { margin-bottom: 24px; }
+    .bypass-row-top {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 9px;
+    }
+    .bypass-ac-name { font-size: .95rem; font-weight: 600; color: #eee; }
+    .bypass-pct {
+      font-family: 'Orbitron', monospace; font-size: .82rem;
+      color: var(--red-light); font-weight: 700;
+      text-shadow: 0 0 8px var(--red-glow);
+    }
+    .bar-track {
+      height: 8px; background: rgba(255,255,255,0.06);
+      border-radius: 50px; overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%; border-radius: 50px; width: 0;
+      background: linear-gradient(90deg, var(--red-dark), var(--red-light));
+      box-shadow: 0 0 12px var(--red-glow);
+      transition: width 1.5s cubic-bezier(.25,.8,.25,1);
+    }
+
+    /* ─── REVIEWS ─── */
+    #reviews { padding: 100px 60px; position: relative; z-index: 1; }
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 22px; max-width: 1100px; margin: 0 auto;
+    }
+    .review-card {
+      background: rgba(8,0,4,0.85);
+      border: 1px solid rgba(210,4,45,0.14);
+      border-radius: 14px; padding: 28px 26px;
+      position: relative; overflow: hidden;
+      transition: transform .3s, box-shadow .3s, border-color .3s;
+    }
+    .review-card::before {
+      content: '\201C';
+      position: absolute; top: 2px; right: 14px;
+      font-size: 7rem; line-height: 1;
+      color: rgba(210,4,45,0.05); font-family: Georgia, serif;
+      pointer-events: none;
+    }
+    .review-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(210,4,45,0.4);
+      box-shadow: 0 14px 44px rgba(210,4,45,0.12);
+    }
+    .review-stars { color: #f5c518; letter-spacing: 3px; font-size: .92rem; margin-bottom: 12px; }
+    .review-text { font-size: .97rem; color: #ddd; line-height: 1.75; margin-bottom: 20px; font-style: italic; }
+    .review-user { display: flex; align-items: center; gap: 12px; }
+    .review-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--red-dark), var(--red));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: .95rem; color: #fff;
+      flex-shrink: 0; box-shadow: 0 0 12px rgba(210,4,45,0.4);
+    }
+    .review-name { font-weight: 700; font-size: .95rem; color: var(--red-light); }
+    .review-tag-sub { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--red-dark); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--red); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 24px; }
+      nav ul { display: none; }
+      #stats { gap: 40px; padding: 36px 24px; }
+      #features, #pricing, #cta { padding: 70px 24px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<div id="particles"></div>
+
+<!-- MAPLE LEAVES -->
+<div id="leaves"></div>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">
+    <img src="logo.svg" alt="Maple Client" class="nav-logo-img"/><span>Maple</span>Client
+  </div>
+  <ul>
+    <li><a href="#features">기능</a></li>
+    <li><a href="#bypass">Bypass</a></li>
+    <li><a href="#reviews">후기</a></li>
+    <li><a href="#pricing">가격</a></li>
+    <li><a href="https://discord.gg/3fj6aSr3Cd" target="_blank" class="nav-discord">💬 Discord</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <img src="logo.svg" class="hero-logo-img" alt="Maple Client Logo"/>
+  <div class="hero-badge">💎 Crystal PvP Client</div>
+  <h1 class="hero-title">
+    <div class="glitch maple" data-text="MAPLE">MAPLE</div>
+    <div class="client">CLIENT</div>
+  </h1>
+  <p class="hero-sub">
+    CPvP의 정점. 최강의 AutoCrystal과<br/>
+    <strong style="color:var(--red-light)">엄청난 바이패스 성능</strong>으로 전장을 지배하세요.
+  </p>
+  <div class="hero-buttons">
+    <a href="#pricing" class="btn btn-buy">
+      🛒 지금 구매하기
+    </a>
+    <a href="https://discord.gg/3fj6aSr3Cd" target="_blank" class="btn btn-discord">
+      💬 디스코드 접속
+    </a>
+  </div>
+  <div class="hero-scroll">
+    SCROLL
+    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<section id="stats">
+  <div class="stat">
+    <div class="stat-num" data-target="398">0</div>
+    <div class="stat-label">Discord Members</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" data-target="99">0</div>
+    <div class="stat-label">Bypass Rate %</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" data-target="50">0</div>
+    <div class="stat-label">Modules</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" data-target="247">0</div>
+    <div class="stat-label">Support 24/7</div>
+  </div>
+</section>
+
+<!-- BYPASS -->
+<section id="bypass">
+  <div class="bypass-wrap">
+    <div class="bypass-left">
+      <p class="section-label">✦ STEALTH TECHNOLOGY</p>
+      <h2 class="section-title">업계 최강<br/><span>바이패스 성능</span></h2>
+      <p class="bypass-desc">최신 안티치트 알고리즘을 실시간 분석하여 완벽하게 우회합니다. 지속적인 판올로지 업데이트로 언제나 안전하게 사용하세요.</p>
+      <span class="bypass-tag">🔒 FULLY UNDETECTED</span>
+    </div>
+    <div class="bypass-right">
+      <div class="bypass-row">
+        <div class="bypass-row-top">
+          <span class="bypass-ac-name">Grim Anticheat</span>
+          <span class="bypass-pct">99%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" data-pct="99"></div></div>
+      </div>
+      <div class="bypass-row">
+        <div class="bypass-row-top">
+          <span class="bypass-ac-name">NoCheatPlus (NCP)</span>
+          <span class="bypass-pct">100%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" data-pct="100"></div></div>
+      </div>
+      <div class="bypass-row">
+        <div class="bypass-row-top">
+          <span class="bypass-ac-name">AAC Advanced</span>
+          <span class="bypass-pct">98%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" data-pct="98"></div></div>
+      </div>
+      <div class="bypass-row">
+        <div class="bypass-row-top">
+          <span class="bypass-ac-name">Matrix Anticheat</span>
+          <span class="bypass-pct">97%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" data-pct="97"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <p class="section-label">✦ CPvP MODULES</p>
+  <h2 class="section-title">CPvP 특화 <span>기능들</span></h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">💎</div>
+      <div class="feature-title">AutoCrystal</div>
+      <div class="feature-desc">크리스탈을 자동으로 배치·폭발. 최고의 딜 사이클로 상대를 순식간에 제압합니다.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔧</div>
+      <div class="feature-title">AntiCheat Bypass</div>
+      <div class="feature-desc">Grim, NCP, AAC 등 최신 안티치트 완벽 우회. 지속적인 업데이트로 항상 안전하게.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fa-solid fa-crosshairs"></i></div>
+      <div class="feature-title">Smart Pearling</div>
+      <div class="feature-desc">적의 위치·이동 벡터를 실시간 계산해 최적의 궤적으로 엔더진주를 자동 투척합니다.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="feature-title">Auto Totem Logic</div>
+      <div class="feature-desc">주변 크리스탈 폭발 대미지를 실시간 예측해 끊김 없이 완벽한 토템 보충을 보장합니다.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fa-solid fa-anchor"></i></div>
+      <div class="feature-title">Anchor Aura</div>
+      <div class="feature-desc">네더·엔드 전용 리스폰 앵커 자동 설치 및 폭파. 어떤 차원에서도 CPvP를 지배하세요.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fa-solid fa-gauge-high"></i></div>
+      <div class="feature-title">Packet Optimizer</div>
+      <div class="feature-desc">네트워크 패킷을 최적화해 핑 차이를 극복하는 타격 판정을 구현. 하이핑도 유리하게.</div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews">
+  <p class="section-label">✦ USER REVIEWS</p>
+  <h2 class="section-title">유저들의 <span>실제 후기</span></h2>
+  <div class="reviews-grid">
+
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">&ldquo;Maple 쓰고 나서 CPvP 승률이 증간 회이 달라짐. AutoCrystal 딜 사이클이 진짜 미쳐있음. 이거 없이는 못 살 것 같아요.&rdquo;</p>
+      <div class="review-user">
+        <div class="review-avatar">N</div>
+        <div>
+          <div class="review-name">Notified</div>
+          <div class="review-tag-sub">CPvP Player &middot; VIP 유저</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">&ldquo;Grim 서버에서 몇 달째 사용 중인데 한 번도 반 안 먹었어요. 바이패스 안정성은 진짜 최고 수준. 업데이트도 빠르게 해줘서 신뢰해요.&rdquo;</p>
+      <div class="review-user">
+        <div class="review-avatar">C</div>
+        <div>
+          <div class="review-name">Cr1mson_PvP</div>
+          <div class="review-tag-sub">Survival CPvP &middot; Premium 유저</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">&ldquo;Smart Pearling 기능이 진짜 게임 체인저예요. 이제 진주 빗나가는 게 없어졌고, 팀원들한테도 Maple 강력 추천했습니다.&rdquo;</p>
+      <div class="review-user">
+        <div class="review-avatar">X</div>
+        <div>
+          <div class="review-name">xCrystalGod</div>
+          <div class="review-tag-sub">Crystal PvP &middot; VIP 유저</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">&ldquo;디스코드 지원팀이 진짜 빠름. 설정 관련 질문했더니 5분 안에 답변 왔어요. 클라이언트 품질도 너무 좋고 정말 만족합니다.&rdquo;</p>
+      <div class="review-user">
+        <div class="review-avatar">M</div>
+        <div>
+          <div class="review-name">MapleMain</div>
+          <div class="review-tag-sub">전 유저 &middot; Basic 유저</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <p class="section-label">✦ PLANS</p>
+  <h2 class="section-title">가격 <span>플랜</span></h2>
+  <div class="pricing-grid">
+
+    <!-- BASIC -->
+    <div class="pricing-card">
+      <div class="plan-name">Basic</div>
+      <div class="plan-price"><sup>$</sup>5<span>/mo</span></div>
+      <div class="plan-period">월정액 · 언제든 취소 가능</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>핵심 CPvP 모듈 전체</li>
+        <li>AutoCrystal (기본 설정)</li>
+        <li>Auto Totem Logic</li>
+        <li>AntiCheat Bypass</li>
+        <li>디스코드 커뮤니티 접근</li>
+        <li>하드웨어 락 HWID <strong>1개</strong> 제한</li>
+      </ul>
+      <a href="https://discord.gg/3fj6aSr3Cd" target="_blank" class="btn-plan btn-plan-outline">
+        🛒 구매하기
+      </a>
+    </div>
+
+    <!-- VIP -->
+    <div class="pricing-card featured">
+      <div class="badge-popular">🔥 POPULAR</div>
+      <div class="plan-name">VIP</div>
+      <div class="plan-price"><sup>$</sup>12<span>/mo</span></div>
+      <div class="plan-period">월정액 · 우선 업데이트 포함</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Basic 전체 기능 포함</li>
+        <li>AutoCrystal 고급 설정 잠금 해제</li>
+        <li>Anchor Aura · Smart Pearling</li>
+        <li>Auto Totem Logic (고급)</li>
+        <li>전용 Config 공유 서비스</li>
+        <li>우선 안티치트 업데이트</li>
+        <li>디스코드 VIP 채널</li>
+        <li>하드웨어 락 HWID <strong>2개</strong></li>
+      </ul>
+      <a href="https://discord.gg/3fj6aSr3Cd" target="_blank" class="btn-plan btn-plan-solid">
+        🛒 구매하기
+      </a>
+    </div>
+
+    <!-- PREMIUM -->
+    <div class="pricing-card" style="border-color: rgba(255,200,50,0.5); box-shadow: 0 0 40px rgba(255,180,0,0.15);">
+      <div class="badge-popular" style="background: linear-gradient(135deg,#c8960c,#f5c518); color:#000;">👑 PREMIUM</div>
+      <div class="plan-name" style="color:#f5c518;">Premium</div>
+      <div class="plan-price"><sup style="color:#f5c518;">$</sup>25<span>/mo</span></div>
+      <div class="plan-period">월정액 · 모든 기능 무제한</div>
+      <div class="plan-divider" style="background: rgba(245,197,24,0.25);"></div>
+      <ul class="plan-features">
+        <li>VIP 전체 기능 포함</li>
+        <li>독점 Premium 전용 모듈</li>
+        <li>향후 베타 모듈 우선 제공</li>
+        <li>최우선 안티치트 패치</li>
+        <li>HWID <strong>무제한</strong> 초기화</li>
+        <li>24/7 전담 1:1 기술 지원</li>
+        <li>전용 코스메틱 (망토) 포함</li>
+      </ul>
+      <a href="https://discord.gg/3fj6aSr3Cd" target="_blank" class="btn-plan" style="background: linear-gradient(135deg,#c8960c,#f5c518); color:#000; font-weight:900; box-shadow: 0 4px 30px rgba(245,197,24,0.35);">
+        👑 구매하기
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- DISCORD CTA -->
+<section id="cta">
+  <div class="cta-box">
+    <h2>🍁 커뮤니티에<br/>합류하세요</h2>
+    <p>
+      수천 명의 유저와 함께하는 Maple Client 공식 디스코드.<br/>
+      업데이트 소식, 구매, 지원 모두 디스코드에서 진행됩니다.
+    </p>
+    <a href="https://discord.gg/3fj6aSr3Cd" target="_blank" class="btn btn-discord">
+      💬 Discord 서버 입장
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">🍁 <span>Maple</span>Client</div>
+  <p>© 2025 Maple Client. Not affiliated with Mojang.</p>
+  <a href="https://discord.gg/3fj6aSr3Cd" target="_blank" style="color: #5865F2; text-decoration:none; font-weight:700;">Discord ↗</a>
+</footer>
+
+<script>
+  /* ── Particles ── */
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (8 + Math.random() * 14) + 's';
+    p.style.animationDelay   = (Math.random() * 12) + 's';
+    p.style.width  = (1 + Math.random() * 3) + 'px';
+    p.style.height = p.style.width;
+    p.style.opacity = 0.4 + Math.random() * 0.6;
+    container.appendChild(p);
+  }
+
+  /* ── Maple Leaves ── */
+  (function() {
+    const lc = document.getElementById('leaves');
+    const COUNT = 28;
+    for (let i = 0; i < COUNT; i++) {
+      const l = document.createElement('span');
+      l.className = 'maple-leaf';
+      l.textContent = '🍁';
+      const sz = 11 + Math.random() * 16;
+      l.style.fontSize      = sz + 'px';
+      l.style.left          = (Math.random() * 108 - 4) + 'vw';
+      l.style.opacity       = (0.05 + Math.random() * 0.13).toFixed(2);
+      l.style.animationDuration = (11 + Math.random() * 15) + 's';
+      l.style.animationDelay    = (-Math.random() * 22) + 's';
+      lc.appendChild(l);
+    }
+  })();
+
+  /* ── Bypass bars ── */
+  const bars = document.querySelectorAll('.bar-fill[data-pct]');
+  const barObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.style.width = e.target.dataset.pct + '%';
+      barObs.unobserve(e.target);
+    });
+  }, { threshold: 0.3 });
+  bars.forEach(b => barObs.observe(b));
+
+  /* ── Counter animation ── */
+  const counters = document.querySelectorAll('.stat-num[data-target]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = +el.dataset.target;
+      const noSuffix = ['247', '398'];
+      const suffix = el.dataset.target === '99' ? '%' : '+';
+      const displaySuffix = noSuffix.includes(el.dataset.target) ? '' : suffix;
+      let current = 0;
+      const step = Math.ceil(target / 60);
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current.toLocaleString() + displaySuffix;
+        if (current >= target) clearInterval(timer);
+      }, 25);
+      observer.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => observer.observe(c));
+</script>
+</body>
 </html>
